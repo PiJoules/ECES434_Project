@@ -2,7 +2,7 @@
 % Mental Math
 % Patrick Cross & Leonard Chan
 
-clear all;
+clear;
 close all;
 clc
 
@@ -28,7 +28,7 @@ allData{6,:} = data;
 load('S07.mat')
 allData{7,:} = data;
 
-clear data
+tic
 
 %% Split the data into training and testing set
 % Since trials have semi random start and end times I'm going to grab
@@ -81,9 +81,9 @@ trainMatrix = cell2mat(trainData(~cellfun('isempty', trainData))); %Purges empty
 testMatrix = cell2mat(testData(~cellfun('isempty', testData)));
 
 %Clear unused data sets that were temporary
-clear trainData;
-clear testData;
-clear allData;
+% clear trainData;
+% clear testData;
+% clear allData;
 
 
 %% Calculate KNN
@@ -98,48 +98,48 @@ clear allData;
 
 %Take KNN only of every 3rd row since that appears the most valuable. (and
 %the last col)
-%trainMatrixMod = trainMatrix(:,3:3:size(trainMatrix,2));
-%testMatrixMod = testMatrix(:,3:3:size(testMatrix,2));
 trainMatrixMod = trainMatrix(:,105:156);
 testMatrixMod = testMatrix(:,105:156);
 trainMatrixMod(:,53)=trainMatrix(:,size(trainMatrix,2));
-testMatrixMod(:,53)=testMatrix(:,size(testMatrix,2));
+testMatrixMod(:,53)=testMatrix(:,size(testMatrix,2));  % sets label
 
 %For testing only, Reduce size for run time
-testMatrixMod = testMatrixMod(1:1000,:);
+testObs = 10000;
+testMatrixMod = testMatrixMod(1:testObs,:);
 
 %Calculate distance matrix for KNN
-d=zeros(size(testMatrixMod,1),size(trainMatrixMod,1));
-for i=1:size(testMatrixMod,1)
-    % disp(i) %Used to display i to show time.
-    for j=1:size(trainMatrixMod,1)
-        d(i,j)=sqrt(sum((testMatrixMod(i,1:size(testMatrixMod,2)-1)-trainMatrixMod(j,1:size(trainMatrixMod,2)-1)).^2));
-    end
-end
+features = size(testMatrixMod,2)-1;
+d=pdist2(testMatrixMod(:,1:features), trainMatrixMod(:,1:features));
 
 %Create our predictions and calculate accuracies
 [sorted,v]=sort(d,2);
-predict1=zeros(size(testMatrixMod,1),1);
-for j=1:1:20
-    for i=1:size(testMatrixMod,1)
-        predict1(i)=mode(trainMatrixMod(v(i,1:j),53));  %Make prediction with varrying number of neighbors
+for k=1:20
+    correct = 0;
+    for i=1:testObs
+        %predict1(i)=mode(trainMatrixMod(v(i,1:k),53));  %Make prediction with varrying number of neighbors
+        obs = mode(trainMatrixMod(v(i,1:k),53));
+        if obs == testMatrixMod(i,53)
+           correct = correct + 1; 
+        end
     end
-	[FP, FN, TP, TN, acc, prec, rec, f_meas, TPR, FPR] = performance(predict1,testMatrixMod(:,53),0);
-    fprintf('Accuracy for KNN size %f = %f, \n',j,acc);
+	%[FP, FN, TP, TN, acc, prec, rec, f_meas, TPR, FPR] = performance(predict1,testMatrixMod(:,53),0);
+    fprintf('Accuracy for KNN size %d = %f, \n',k,correct/testObs);
 end
+
+toc
 
 %Plot the index in the test data set where the 10 shortest distances
 %occurreed.
-plot(1:10,v(:,1:10))
-xlabel('Distance index')
-ylabel('Index in train set')
-title('Display showing distribution of used train set for test set')
-
-figure;
-plot(1:10,v(:,1:10))
-xlabel('Distance index')
-ylabel('Index in train set')
-title('Display showing distribution of used train set for test set')
-axis([1 10 1 5000]);
-
-disp 'completed KNN';
+% plot(1:10,v(:,1:10))
+% xlabel('Distance index')
+% ylabel('Index in train set')
+% title('Display showing distribution of used train set for test set')
+% 
+% figure;
+% plot(1:10,v(:,1:10))
+% xlabel('Distance index')
+% ylabel('Index in train set')
+% title('Display showing distribution of used train set for test set')
+% axis([1 10 1 5000]);
+% 
+% disp 'completed KNN';
