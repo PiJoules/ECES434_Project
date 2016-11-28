@@ -9,8 +9,14 @@ clear;
 close all;
 clc
 
+
 %% Calculations for KNN
 [trainMatrix, testMatrix] = partition_data();
+
+%Quick justification of data seperation
+mean(var(trainMatrix(:,1:52)))
+mean(var(trainMatrix(:,53:104)))
+mean(var(trainMatrix(:,105:156)))
 
 tic
 
