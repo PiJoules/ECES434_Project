@@ -103,12 +103,12 @@ testMatrixMod = testMatrix(:,105:156);
 trainMatrixMod(:,53)=trainMatrix(:,size(trainMatrix,2));
 testMatrixMod(:,53)=testMatrix(:,size(testMatrix,2));  
 
-testObs = 10000;
-testMatrixMod = testMatrixMod(1:testObs,:);
+%testObs = 10000;
+%testMatrixMod = testMatrixMod(1:testObs,:);
 
 features = size(testMatrixMod,2)-1;
 
-numLayersMax = 20;
+numLayersMax = 10;
 threshPercision = 10;
 accTable = zeros(numLayersMax,threshPercision);
 timeTable = zeros(numLayersMax,1);
@@ -131,11 +131,12 @@ for i = 1:numLayersMax
     end
 end
 figure;
-surf([0:0.1:1],[1:20],accTable)
+surf([0:0.1:1],[1:10],accTable);
 xlabel('threshold')
 ylabel('num hidden layers')
 zlabel('accuracy')
 
 figure;
+plot(timeTable);
 xlabel('num hidden layers')
 ylabel('Time to create (s)')

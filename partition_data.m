@@ -65,12 +65,27 @@ function [trainMatrix, testMatrix]=partition_data()
             allData{i,1}{1,j}.X = allData{i,1}{1,j}.X(indx,:);
 
             %Split into training and test Cells (makes easier to process)
-            trainData{i,j}=allData{i,1}{1,j}.X(1:int16(trainRatio*tmpDimX),:);
-            testData{i,j}=allData{i,1}{1,j}.X(int16(trainRatio*tmpDimX)+1:end,:);
+            %trainData{i,j}=allData{i,1}{1,j}.X(1:int16(trainRatio*tmpDimX),:);
+            %testData{i,j}=allData{i,1}{1,j}.X(int16(trainRatio*tmpDimX)+1:end,:);
 
         end
     end
-
+    %Split data by patient rather then through patients
+    trainDataTmp=allData(1:7);
+    testDataTmp=allData(8:end);
+    for i=1:size(trainDataTmp,1)
+        for j=1:size(trainDataTmp{i},2)
+            trainData{i,j}=trainDataTmp{i}{j}.X;
+        end
+    end
+    
+	for i=1:size(testDataTmp,1)
+        for j=1:size(testDataTmp{i},2)
+            testData{i,j}=testDataTmp{i}{j}.X;
+        end
+    end
+    
     trainMatrix = cell2mat(trainData(~cellfun('isempty', trainData))); %Purges empty cells and converts to matrix
-    testMatrix = cell2mat(testData(~cellfun('isempty', testData)));
+    testMatrix = cell2mat(testData(~cellfun('isempty', testData))');
+    
 end
